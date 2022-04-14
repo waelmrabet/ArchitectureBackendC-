@@ -1,0 +1,33 @@
+<Project>
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageLicenseFile>stradafiles/license.md</PackageLicenseFile>
+        <Copyright>Copyright (C) Strada - All Rights Reserved</Copyright>
+        <PackageIcon>stradafiles/Strada-Logo.png</PackageIcon>
+        <Authors>Strada</Authors>
+        <PackageId>$(AssemblyName)</PackageId>
+        <Product>$(AssemblyName)</Product>
+        <PackageProjectUrl>http://www.strada.fr</PackageProjectUrl>
+        <Company>Strada</Company>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../_Packaging/Strada-Logo.png" Pack="true" PackagePath="$(PackageIcon)" />
+        <None Include="../_Packaging/licensefile.md" Pack="true" PackagePath="$(PackageLicenseFile)" />
+    </ItemGroup>
+
+</Project>

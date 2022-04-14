@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AssemblyName>Strada.Framework.Metrics.AspNetCore</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+        <Description>Asp.Net Metrics Library</Description>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="EntityFramework" Version="6.4.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.5" />
+        <PackageReference Include="prometheus-net" Version="4.1.1" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="4.1.1" />
+        <PackageReference Include="Prometheus.Client" Version="4.2.0" />
+    </ItemGroup>
+
+</Project>

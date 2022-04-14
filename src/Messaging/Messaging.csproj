@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AssemblyName>Strada.Framework.Messaging</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+        <Description>Application Messaging Library</Description>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
+</Project>

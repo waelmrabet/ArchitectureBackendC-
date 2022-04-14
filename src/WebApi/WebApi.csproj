@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <AssemblyName>Strada.Framework.WebApi</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+        <Description>Asp.Net Component Library</Description>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MediatR" Version="9.0.0" />
+    </ItemGroup>
+
+</Project>

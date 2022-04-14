@@ -1,0 +1,108 @@
+---
+variables:
+  REGISTRY       : reg-ext.stradaworld.com
+  CONTAINER_IMAGE: ${REGISTRY}/strada/${CI_PROJECT_PATH_SLUG}
+  DOCKER_DRIVER  : overlay2
+  JOB_USER: "gitlab-ci-token"
+  SOLUTION_DIR: ${CI_PROJECT_DIR}/src
+  ARTIFACT_PATH: ${CI_PROJECT_DIR}/.artifacts
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - when: always
+
+stages:
+  - version
+  - test
+  - pack
+  - publish
+  - release
+
+gitversion_job:
+  stage: version
+  image: 
+    name: gittools/gitversion
+    entrypoint: ['']
+  script: 
+    - |
+      echo "GitVersion $(/tools/dotnet-gitversion -version)"
+      /tools/dotnet-gitversion
+      echo "BUILD_VERSION=$(/tools/dotnet-gitversion -showvariable NuGetVersionV2)" >> build.env
+      cat build.env
+  variables:
+    GIT_DEPTH: 0
+  artifacts:
+    reports:
+      dotenv: build.env
+
+test_job:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:5.0
+  script:
+    - |
+      dotnet nuget add source -n Nexus -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD} --store-password-in-clear-text https://${NEXUS_SERVER}/repository/nugget-staging/
+    - |
+      pushd ${SOLUTION_DIR}
+      echo " TESTING SOLUTION "
+      dotnet test *.sln 
+      popd
+  needs: 
+    - job: gitversion_job
+      artifacts: true
+
+pack_job:
+  stage: pack
+  image: mcr.microsoft.com/dotnet/sdk:5.0
+  script:
+    - |
+      dotnet nuget add source -n Nexus -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD} --store-password-in-clear-text https://${NEXUS_SERVER}/repository/nugget-staging/
+    - |
+      echo "BUILD_VERSION=${BUILD_VERSION}"
+    - |
+      pushd ${SOLUTION_DIR}
+      echo " GENERATING NUGET PACKAGE "
+      dotnet pack *.sln -c Release -o ${ARTIFACT_PATH} -p:Version=${BUILD_VERSION} /p:ContinuousIntegrationBuild=true /p:DeterministicSourcePaths=true
+      popd
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${ARTIFACT_PATH}/*
+  needs: 
+    - job: test_job
+    - job: gitversion_job
+      artifacts: true
+
+publishnuget_job:
+  stage: publish
+  image: mcr.microsoft.com/dotnet/sdk:5.0
+  script:
+    - |
+      echo " PUBLISHING NUGET PACKAGE "
+      ls -l ${ARTIFACT_PATH}/*.nupkg
+      dotnet nuget push "${ARTIFACT_PATH}/*.nupkg" --source https://${NEXUS_SERVER}/repository/nugget-staging/ --api-key ${NEXUS_NUGET_KEY}
+      dotnet nuget push "${ARTIFACT_PATH}/*.snupkg" --source https://${NEXUS_SERVER}/repository/nugget-staging/ --api-key ${NEXUS_NUGET_KEY}
+  needs: 
+    - job: pack_job
+  only:
+    - master
+
+releasetag_job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - |
+      echo " RELEASE TAG ${BUILD_VERSION} "
+  release:
+    name: "Release ${BUILD_VERSION}"
+    tag_name: ver${BUILD_VERSION}
+    description: "${CI_COMMIT_MESSAGE}"
+  needs: 
+    - job: publishnuget_job
+    - job: gitversion_job
+      artifacts: true
+  only:
+    - master
